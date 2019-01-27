@@ -8,84 +8,33 @@
 
 
 #include <iostream>
-#include <thread>
-#include <mutex>
-#include <unistd.h>
 #include <stdlib.h>
-#include <time.h>
-#include <vector>
+#include "Barber_Shop.hpp"
+#include <thread>
 
-std::mutex mtx;
-int chairs = 5;     // number of chairs in waiting room
-int seat_occupied =0;
-std::vector<int> waiting_customers;
+BarberShop b;
 
 void barbers ()
-{ // Barber Thread
-    
-    do {
-        
-        while (waiting_customers.size()!=0)
-
-        {   // Barber start working on the first customer in the queue
-            printf("\n\nBarber cutting the hair of customer: %d",waiting_customers[0]);
-            waiting_customers.erase(std::remove(waiting_customers.begin(), waiting_customers.end(), waiting_customers[0]),waiting_customers.end());
-            // printing customers waiting
-            printf("\n Waiting room");
-            for(int i=0;i< waiting_customers.size();i++)
-            {printf(" %d ",waiting_customers[i]);}
-            // random delay between 4 and 5 seconds
-            usleep((rand()%5+4)*1000000);
-            seat_occupied =0;
-        }
-       
-    }while(1);
-
+{
+    b.barber();
 }
-
-
-void shop (int order_id)
-
-{   mtx.lock(); // critical section locking for one thread at a time
-    //condition 1 : when barber is not doing anything
-    if(waiting_customers.size()<= chairs && seat_occupied==0)
-    {
-       waiting_customers.push_back(order_id+1);
-       seat_occupied=1;
-       mtx.unlock();
-    }
-    //condition 2 : when barber is working on some other customer and waiting room seats are empty
-    else if(waiting_customers.size() <= chairs && seat_occupied==1)
-    {
-        waiting_customers.push_back(order_id+1);
-        mtx.unlock();
-    }
-    //condition 3 : when barber is working on some other customer and waiting room seats are not empty
-    else if (waiting_customers.size() > chairs && seat_occupied==1)
-    {
-        printf("\n customer :%d leaving",order_id+1);
-        mtx.unlock();
-    }
-    
-    
-    
+void goToShop(int order)
+{
+    b.enterShop(order);
 }
-
-void customers (int num) {
+void customers(int num)
+{
     printf("\n Generating %d customers",num);
     std::thread barber_shop[num];
     for (int order = 0; order < num; order++){
-        barber_shop[order] = std::thread(shop, order);
+        barber_shop[order] = std::thread(goToShop, order);
         usleep(3000000);
-        }
+    }
     for (int order = 0; order < num; order++) {
         barber_shop[order].join();
     }
     
 }
-
-
-
 
 
 int main ()
@@ -95,10 +44,12 @@ int main ()
     std::thread customer(customers,30);
     
     barber.join();
-   
+    
     customer.join();
+
     
     
+   
     return 0;
 }
 

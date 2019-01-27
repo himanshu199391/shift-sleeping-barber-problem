@@ -16,7 +16,7 @@
 #include <vector>
 
 std::mutex mtx;
-int chairs = 5;     // shared value by producers and consumers
+int chairs = 5;     // number of chairs in waiting room
 int seat_occupied =0;
 std::vector<int> waiting_customers;
 

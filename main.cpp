@@ -27,7 +27,7 @@ void customers(int num)
     printf("\n Generating %d customers",num);
     std::thread barber_shop[num];
     for (int order = 0; order < num; order++){
-        barber_shop[order] = std::thread(goToShop, order);
+        barber_shop[order] = std::thread(goToShop, order); // Customer threads
         usleep(3000000);
     }
     for (int order = 0; order < num; order++) {
@@ -39,9 +39,9 @@ void customers(int num)
 
 int main ()
 {
-    std::thread barber(barbers);
+    std::thread barber(barbers); // Barber thread
     
-    std::thread customer(customers,30);
+    std::thread customer(customers,30); // Customer generating thread
     
     barber.join();
     
